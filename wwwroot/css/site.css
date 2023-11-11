@@ -17,6 +17,13 @@ html {
   min-height: 100%;
 }
 
+.custom-header {
+    background-color: rgb(255, 0, 0);
+    
+    font-family: 'Pacifico', cursive;
+}
+
 body {
   margin-bottom: 60px;
+  background-color: rgb(225, 218, 213, 0.46)
 }

@@ -32,6 +32,8 @@ namespace MvcMovie.Models
         public string? Rating { get; set; }
 
         public string? ImageName { get; set; }
-        public string ImagePath => !string.IsNullOrEmpty(ImageName) ? $"/images/{ImageName}" : "/images/default.jpg";
+        [NotMapped]
+        public string? ImagePath { get; set; }
+        //public string ImagePath => !string.IsNullOrEmpty(ImageName) ? $"/images/{ImageName}" : "/images/default.jpg";
     }
 }

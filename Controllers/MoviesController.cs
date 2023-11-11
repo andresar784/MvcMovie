@@ -7,16 +7,24 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MvcMovie.Data;
 using MvcMovie.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
+using System.Net;
 
 namespace MvcMovie.Controllers
 {
     public class MoviesController : Controller
     {
         private readonly MvcMovieContext _context;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public MoviesController(MvcMovieContext context)
+        public MoviesController(MvcMovieContext context, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
+            _hostingEnvironment = hostingEnvironment;
+
         }
 
         // GET: Movies
@@ -78,13 +86,32 @@ namespace MvcMovie.Controllers
 
             var movie = await _context.Movie
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (movie == null)
             {
                 return NotFound();
             }
+           
 
             return View(movie);
         }
+        public IActionResult GetImage(string imageName)
+        {
+            if (imageName == null)
+            {
+                return NotFound();
+            }
+
+
+            var imagePath = Path.Combine(_hostingEnvironment.WebRootPath, "images", imageName.Replace('\\', '/'));
+            if (!System.IO.File.Exists(imagePath))
+            {
+                return NotFound();
+            }
+            var imageBytes = System.IO.File.ReadAllBytes(imagePath);
+            return File(imageBytes, "image/jpeg");
+        }
+
 
         // GET: Movies/Create
         public IActionResult Create()
@@ -97,7 +124,7 @@ namespace MvcMovie.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
+        public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Genre,Price,Rating,ImagePath")] Movie movie)
         {
             if (ModelState.IsValid)
             {
@@ -129,7 +156,7 @@ namespace MvcMovie.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseDate,Genre,Price,Rating, ImagePath")] Movie movie)
         {
             if (id != movie.Id)
             {
